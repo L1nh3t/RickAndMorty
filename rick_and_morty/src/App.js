@@ -1,18 +1,36 @@
 import React from 'react';
 // import logo from './logo.svg';
 import './App.css';
+import api from './lib/api';
+
 
 class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      modalActivo: false
+      modalActivo: false,
+      personajes: [], 
+      PersonajeSeleccionado: {},
     }
   }
 
-  activarModal() {
-    this.setState({
-      modalActivo: true
+  componentDidMount(){
+    api.getAllCharacters()
+      .then(results => {
+        this.setState({
+          personajes:results
+        })
+      })
+      .catch(e => console.log(e))
+  }
+
+  activarModal(id) {
+    api.getAllCharactersById(id)
+    .then(personaje => {
+      this.setState({
+        modalActivo: true,
+        PersonajeSeleccionado: personaje
+      })
     })
   }
 
@@ -22,17 +40,17 @@ class App extends React.Component {
     })
   }
 
-  renderCards(e) {
+  renderCards(p) {
     return (
-      <div key={e} className='Card' onClick={e => this.activarModal()}>
+      <div key={p.id} className='Card' onClick={() => this.activarModal(p.id)}>
         <div className='Card-imagen'>
           <figure>
-            <img alt='test' src={'https://rickandmortyapi.com/api/character/avatar/361.jpeg'} />
+            <img alt='test' src={p.image} />
           </figure>
         </div>
         <div className='Card-descripcion'>
           <div className='Card-name'>
-            <h3>Rick fdshfkjgdajkf jg fdkasgf dlask</h3>
+          <h3>{p.name}</h3>
           </div>
         </div>
       </div>
@@ -40,9 +58,10 @@ class App extends React.Component {
   }
 
   render() {
-    const { modalActivo } = this.state
-    const fakeData = [0,1,2,3,4,5,6,7]
-    const cards = fakeData.map(e => this.renderCards(e))
+    const { modalActivo, personajes } = this.state
+
+    const cards = personajes.map(p => this.renderCards(p))
+    
     console.log(cards)
     return (
       <div className="App">
@@ -56,34 +75,34 @@ class App extends React.Component {
               <div className='Card-detalle'>
                 <div className='Card-imagen'>
                   <figure>
-                    <img alt='test' src={'https://rickandmortyapi.com/api/character/avatar/361.jpeg'} />
+                    <img alt='test' src={this.state.PersonajeSeleccionado.image} />
                   </figure>
                 </div>
                 <div className='Card-detalle-descripcion'>
                   <div className='descripcion'>
-                    <h3>Name</h3>
+                    <h3>{this.state.PersonajeSeleccionado.name}</h3>
                     <div className='caracteristica'>
                       <p>Status</p>
                       <p className='caracteristica-valor'>
-                        Muerto
+                      {this.state.PersonajeSeleccionado.status}
                       </p>
                     </div>
                     <div className='caracteristica'>
                       <p>Especie</p>
                       <p className='caracteristica-valor'>
-                        Humano
+                      {this.state.PersonajeSeleccionado.species}
                       </p>
                     </div>
                     <div className='caracteristica'>
                       <p>Genero</p>
                       <p className='caracteristica-valor'>
-                        ??
+                      {this.state.PersonajeSeleccionado.gender}
                       </p>
                     </div>
                     <div className='caracteristica'>
                       <p>Origen</p>
                       <p className='caracteristica-valor'>
-                        Tierra
+                      {this.state.PersonajeSeleccionado.origin.name}
                       </p>
                     </div>
                   </div>
